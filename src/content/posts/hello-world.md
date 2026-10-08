@@ -6,9 +6,9 @@ tags: [随笔]
 draft: false
 ---
 
-## 这是标题
+## 你好，我是Mureromi
 
-这是正文，用 Markdown 书写，支持 **加粗**、`行内代码`、代码块、列表、图片等。
+这里将会发表我的一些笔记
 
 ```js
 console.log('hello');

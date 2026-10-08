@@ -6,22 +6,53 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const posts = (await getCollection('posts'))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 终端风的补零日期：2026-10-08
+const fmt = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// 部署在子路径（GitHub Pages 项目页）时给链接补前缀
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const withBase = (path: string) => base + path;
 ---
 
 <BaseLayout title="我的博客">
-  <h1 class="mb-8 text-2xl font-bold">最新文章</h1>
+  <section class="border border-term-line bg-term-panel px-4 py-4">
+    <p><span class="text-term-green">$</span> whoami</p>
+    <p class="mt-2 text-sm leading-relaxed text-term-dim">
+      mureromi —— 在这里记录技术、生活与思考。
+    </p>
+  </section>
 
-  <ul class="space-y-6">
-    {posts.map((post) => (
-      <li>
-        <a href={`/posts/${post.id}/`} class="group block">
-          <h2 class="text-lg font-semibold group-hover:underline">{post.data.title}</h2>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{post.data.description}</p>
-          <time datetime={post.data.pubDate.toISOString()} class="mt-1 block text-xs text-gray-400">
-            {post.data.pubDate.toLocaleDateString('zh-CN')}
-          </time>
-        </a>
-      </li>
-    ))}
-  </ul>
+  <section class="mt-10">
+    <h1 class="sr-only">最新文章</h1>
+    <p aria-hidden="true">
+      <span class="text-term-green">$</span> ls -t ~/posts/<span class="term-cursor" aria-hidden="true"></span>
+    </p>
+
+    <ul class="mt-4 space-y-4">
+      {posts.map((post) => (
+        <li>
+          <a
+            href={withBase(`/posts/${post.id}/`)}
+            class="group block border border-term-line bg-term-panel px-4 py-4 transition-colors hover:border-term-green"
+          >
+            <p class="flex flex-wrap items-center justify-between gap-2 text-xs text-term-dim">
+              <span>
+                <time datetime={post.data.pubDate.toISOString()} class="text-term-amber">
+                  {fmt(post.data.pubDate)}
+                </time>
+                {post.data.tags.map((tag) => <span class="ml-2">#{tag}</span>)}
+              </span>
+              <span>{post.id}.md</span>
+            </p>
+            <h2 class="mt-2 text-lg font-bold transition-colors group-hover:text-term-green">
+              {post.data.title}
+            </h2>
+            <p class="mt-1 text-sm text-term-dim">{post.data.description}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
 </BaseLayout>

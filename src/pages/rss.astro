@@ -1,0 +1,96 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 终端风的补零日期：2026-10-08
+const fmt = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// 部署在子路径（GitHub Pages 项目页）时给链接补前缀
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const withBase = (path: string) => base + path;
+---
+
+<BaseLayout title="RSS 订阅" description="订阅我的博客">
+  <p class="text-sm text-term-dim">
+    <span class="text-term-green">$</span> cat ~/rss.xml
+  </p>
+  <h1 class="mt-4 text-2xl font-bold">RSS 订阅</h1>
+  <p class="mt-3 text-sm leading-relaxed text-term-dim">
+    RSS 让你不打开网站也能收到博客更新。把下面的地址粘贴到任意 RSS
+    阅读器（NetNewsWire、Reeder、Feedly 等）即可订阅；大多数阅读器也支持直接输入博客首页地址自动发现订阅源。
+  </p>
+
+  <p class="mt-8 text-xs tracking-widest text-term-dim">订阅地址</p>
+  <div class="mt-2 flex items-center gap-3 border border-term-line bg-term-panel px-4 py-3">
+    <code id="feed-url" class="min-w-0 flex-1 break-all text-sm text-term-green">/rss.xml</code>
+    <button
+      id="copy-feed-url"
+      type="button"
+      class="shrink-0 rounded-full border border-term-line px-4 py-1 text-xs text-term-dim transition-colors hover:border-term-green hover:text-term-green"
+    >
+      复制
+    </button>
+  </div>
+
+  <p class="mt-8 text-xs tracking-widest text-term-dim">最新内容</p>
+  <ul class="mt-2 space-y-4">
+    {posts.map((post) => (
+      <li>
+        <a
+          href={withBase(`/posts/${post.id}/`)}
+          class="group block border border-term-line bg-term-panel px-4 py-4 transition-colors hover:border-term-green"
+        >
+          <p class="flex flex-wrap items-center justify-between gap-2 text-xs text-term-dim">
+            <time datetime={post.data.pubDate.toISOString()} class="text-term-amber">
+              {fmt(post.data.pubDate)}
+            </time>
+            <span>{post.id}.md</span>
+          </p>
+          <h2 class="mt-2 text-lg font-bold transition-colors group-hover:text-term-green">
+            {post.data.title}
+          </h2>
+          <p class="mt-1 text-sm text-term-dim">{post.data.description}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <p class="mt-8 text-xs text-term-dim">
+    <a href={withBase('/rss.xml')} class="hover:text-term-green">查看原始 XML</a>
+    （浏览器直接打开订阅源看到 XML 文档树属正常现象，它是给阅读器读的）
+  </p>
+
+  <script>
+    // 展示并复制当前站点的真实订阅地址（本地预览 / 部署后域名都对）
+    const urlEl = document.getElementById('feed-url');
+    const btn = document.getElementById('copy-feed-url');
+    const feedUrl = location.origin + import.meta.env.BASE_URL + 'rss.xml';
+    if (urlEl) urlEl.textContent = feedUrl;
+
+    btn?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(feedUrl);
+        if (btn) {
+          btn.textContent = '已复制';
+          setTimeout(() => {
+            btn.textContent = '复制';
+          }, 1500);
+        }
+      } catch {
+        // 剪贴板不可用时选中地址，方便手动 Ctrl/Cmd+C
+        if (urlEl) {
+          const range = document.createRange();
+          range.selectNodeContents(urlEl);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        }
+      }
+    });
+  </script>
+</BaseLayout>

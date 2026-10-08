@@ -7,23 +7,31 @@
 <script>
   // 把下面四个值换成你在 https://giscus.app 生成的真实值
   // 这些是要公开的，不是密钥，放这里没问题
+  const repo = 'your-username/your-repo';
+  const repoId = 'R_kgXXXXXXXX';
+  const category = 'Announcements';
+  const categoryId = 'DIC_kwXXXXXXXX';
+
   function loadGiscus() {
     const container = document.querySelector('.giscus');
     if (!container) return;
     container.innerHTML = ''; // 防止重复加载
+    // 占位值没替换前跳过加载，避免访客看到 giscus 报错；替换后这里自动放行
+    if (repo === 'your-username/your-repo') return;
 
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
     script.async = true;
-    script.setAttribute('data-repo', 'your-username/your-repo');
-    script.setAttribute('data-repo-id', 'R_kgXXXXXXXX');
-    script.setAttribute('data-category', 'Announcements');
-    script.setAttribute('data-category-id', 'DIC_kwXXXXXXXX');
+    script.setAttribute('data-repo', repo);
+    script.setAttribute('data-repo-id', repoId);
+    script.setAttribute('data-category', category);
+    script.setAttribute('data-category-id', categoryId);
     script.setAttribute('data-mapping', 'pathname'); // 每篇文章按 URL 对应一条评论
     script.setAttribute('data-reactions-enabled', '1');
     script.setAttribute('data-emit-metadata', '0');
     script.setAttribute('data-input-position', 'bottom');
-    script.setAttribute('data-theme', 'preferred_color_scheme'); // 跟随站点明暗
+    // 跟随站点当前明暗（页头的切换按钮会通过 postMessage 同步更新）
+    script.setAttribute('data-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
     script.setAttribute('data-lang', 'zh-CN');
     script.setAttribute('crossorigin', 'anonymous');
 

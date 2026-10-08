@@ -1,2 +1,103 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+/* 明暗切换用 class 策略：<html class="dark"> 为暗色（配合 BaseLayout 里的切换按钮） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 终端风双主题配色 */
+:root {
+  --term-bg: #fbfcfe;
+  --term-panel: #ffffff;
+  --term-line: #d9e0e8;
+  --term-fg: #24292f;
+  --term-dim: #59626d;
+  --term-green: #16803c;
+  --term-amber: #96660a;
+}
+
+.dark {
+  --term-bg: #0a0e14;
+  --term-panel: #10161f;
+  --term-line: #1f2937;
+  --term-fg: #c9d3dd;
+  --term-dim: #76828f;
+  --term-green: #4ade80;
+  --term-amber: #e3b341;
+}
+
+/* 注册成 Tailwind 颜色工具类（bg-term-bg / text-term-fg / border-term-line …）；
+   inline 让工具类直接引用上面的变量，从而随 .dark 类切换 */
+@theme inline {
+  --color-term-bg: var(--term-bg);
+  --color-term-panel: var(--term-panel);
+  --color-term-line: var(--term-line);
+  --color-term-fg: var(--term-fg);
+  --color-term-dim: var(--term-dim);
+  --color-term-green: var(--term-green);
+  --color-term-amber: var(--term-amber);
+}
+
+@theme {
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+}
+
+/* 闪烁光标 */
+.term-cursor::after {
+  content: '▊';
+  margin-left: 0.15em;
+  color: var(--term-green);
+  animation: term-blink 1.2s step-end infinite;
+}
+@keyframes term-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 主题切换按钮：内容随当前主题变化（CSS 驱动，避免闪烁） */
+.theme-toggle::after {
+  content: '☾';
+}
+.dark .theme-toggle::after {
+  content: '☀';
+}
+
+/* Markdown 正文的终端化排版覆盖 */
+.prose :where(a) {
+  color: var(--term-green);
+  text-decoration-color: var(--term-green);
+}
+.prose :where(blockquote) {
+  border-left: 2px solid var(--term-green);
+  font-style: normal;
+  color: var(--term-dim);
+}
+.prose :where(:not(pre) > code) {
+  color: var(--term-green);
+  background-color: color-mix(in srgb, var(--term-green) 10%, transparent);
+  font-weight: 500;
+}
+/* 去掉 typography 插件给行内代码加的反引号 */
+.prose :where(:not(pre) > code)::before,
+.prose :where(:not(pre) > code)::after {
+  content: '';
+}
+
+/* 代码块：方角 + 边框，背景用面板色与页面区分（!important 覆盖 shiki 的内联样式） */
+.prose pre {
+  background-color: var(--term-panel) !important;
+  color: var(--term-fg) !important;
+  border: 1px solid var(--term-line);
+  border-radius: 0;
+}
+.prose pre code {
+  background: none;
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* shiki 双主题（astro.config.mjs 里配置）：暗色时切换 token 颜色 */
+.dark .prose pre span {
+  color: var(--shiki-dark) !important;
+}

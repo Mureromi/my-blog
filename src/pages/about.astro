@@ -3,8 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="关于" description="关于我">
-  <h1 class="text-2xl font-bold">关于我</h1>
-  <div class="prose prose-gray mt-4 dark:prose-invert">
+  <p class="text-sm text-term-dim">
+    <span class="text-term-green">$</span> cat ~/about.md
+  </p>
+  <div class="prose prose-gray mt-8 dark:prose-invert">
+    <h1>关于我</h1>
     <p>在这里写自我介绍。</p>
   </div>
 </BaseLayout>

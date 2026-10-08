@@ -28,8 +28,19 @@ draft: false        # true 则不发布
 正文（Markdown）……
 ```
 
-## 待办（见实现文档第 11 节）
+## 部署（GitHub Pages）
+
+站点地址：<https://mureromi.github.io/my-blog/>（项目页带子路径，`astro.config.mjs` 的 `base: '/my-blog'` 与之对应）。
+
+一次性设置：仓库 `Settings → Pages → Build and deployment → Source` 选择 **GitHub Actions**。
+之后每次 `git push`，`.github/workflows/deploy.yml` 会自动构建并发布。
+
+想改用根地址 `https://mureromi.github.io/`：把仓库改名为 `mureromi.github.io`，
+再删掉 `astro.config.mjs` 里的 `base` 行、把 `site` 改为 `'https://mureromi.github.io'` 即可。
+
+注意：配置 `base` 后本地开发地址也带前缀：<http://localhost:4321/my-blog/>。
+
+## 待办
 
 - [ ] Giscus：按文档 6.7 节完成 GitHub 准备后，替换 `src/components/Giscus.astro` 里的 4 个占位配置（repo / repo-id / category / category-id）
-- [ ] `astro.config.mjs` 里的 `site` 改成真实域名
-- [ ] 推送 GitHub 并接入 Vercel（文档第 9 节）
+- [ ] 在 GitHub 仓库 `Settings → Pages` 里把 Source 设为 GitHub Actions

@@ -7,33 +7,83 @@ interface Props {
 }
 
 const { title, description = '我的个人博客' } = Astro.props;
+
+// 部署在子路径（GitHub Pages 项目页）时给链接补前缀；根路径部署时为空串
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const withBase = (path: string) => base + path;
+
+// 右上角导航的胶囊按钮样式
+const pillClass =
+  'rounded-full border border-term-line bg-term-panel px-3.5 py-1 text-term-dim transition-colors hover:border-term-green hover:text-term-green';
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title="我的博客" href={new URL('rss.xml', Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title="我的博客" href={withBase('/rss.xml')} />
     <title>{title}</title>
+    <script is:inline>
+      // 首屏同步主题，避免闪烁：localStorage 记住的选择优先，默认暗色
+      try {
+        const saved = localStorage.getItem('theme');
+        document.documentElement.classList.toggle('dark', saved ? saved === 'dark' : true);
+      } catch {}
+    </script>
   </head>
-  <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-    <header class="mx-auto max-w-2xl px-4 py-6">
-      <nav class="flex items-center gap-6 text-sm">
-        <a href="/" class="font-semibold">我的博客</a>
-        <a href="/" class="text-gray-600 dark:text-gray-300">首页</a>
-        <a href="/about" class="text-gray-600 dark:text-gray-300">关于</a>
-      </nav>
+  <body class="flex min-h-screen flex-col bg-term-bg font-mono text-term-fg antialiased">
+    <header class="border-b border-term-line">
+      <div class="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4">
+        <a href={withBase('/')} class="font-bold text-term-green hover:underline" title="回到首页">
+          mureromi@blog<span class="text-term-dim">:~$</span><span class="term-cursor" aria-hidden="true"></span>
+        </a>
+        <nav class="flex items-center gap-2 text-sm" aria-label="主导航">
+          <a href={withBase('/')} class={pillClass}>首页</a>
+          <a href={withBase('/about')} class={pillClass}>关于</a>
+          <a href={withBase('/rss')} class={pillClass}>rss</a>
+          <button
+            id="theme-toggle"
+            type="button"
+            class={`theme-toggle ${pillClass}`}
+            aria-label="切换明暗主题"
+          ></button>
+        </nav>
+      </div>
     </header>
 
-    <main class="mx-auto max-w-2xl px-4 pb-16">
+    <main class="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
       <slot />
     </main>
 
-    <footer class="mx-auto max-w-2xl px-4 py-8 text-sm text-gray-400">
-      <p>© 2026 我的博客 · 用 Astro 搭建</p>
+    <footer class="border-t border-term-line">
+      <div
+        class="mx-auto flex max-w-2xl flex-col gap-2 px-4 py-6 text-xs text-term-dim sm:flex-row sm:items-center sm:justify-between"
+      >
+        <p>
+          © 2026 mureromi · powered by
+          <a href="https://astro.build" class="hover:text-term-green">astro</a>
+        </p>
+        <p>
+          <span class="text-term-green">$</span> echo "thanks for visiting"<span class="term-cursor" aria-hidden="true"></span>
+        </p>
+      </div>
     </footer>
+
+    <script>
+      // 明暗切换：记住选择，并同步 Giscus 评论区主题
+      document.getElementById('theme-toggle')?.addEventListener('click', () => {
+        const dark = document.documentElement.classList.toggle('dark');
+        try {
+          localStorage.setItem('theme', dark ? 'dark' : 'light');
+        } catch {}
+        document.querySelector('iframe.giscus-frame')?.contentWindow?.postMessage(
+          { giscus: { setConfig: { theme: dark ? 'dark' : 'light' } } },
+          'https://giscus.app',
+        );
+      });
+    </script>
   </body>
 </html>
