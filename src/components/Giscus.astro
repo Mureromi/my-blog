@@ -1,0 +1,39 @@
+---
+// 组件本身不需要服务端逻辑，占位即可
+---
+
+<div class="giscus mt-12"></div>
+
+<script>
+  // 把下面四个值换成你在 https://giscus.app 生成的真实值
+  // 这些是要公开的，不是密钥，放这里没问题
+  function loadGiscus() {
+    const container = document.querySelector('.giscus');
+    if (!container) return;
+    container.innerHTML = ''; // 防止重复加载
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.async = true;
+    script.setAttribute('data-repo', 'your-username/your-repo');
+    script.setAttribute('data-repo-id', 'R_kgXXXXXXXX');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwXXXXXXXX');
+    script.setAttribute('data-mapping', 'pathname'); // 每篇文章按 URL 对应一条评论
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme'); // 跟随站点明暗
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('crossorigin', 'anonymous');
+
+    container.appendChild(script);
+  }
+
+  // 首次加载
+  loadGiscus();
+
+  // 关键坑：启用 View Transitions 后页面切换不会重新执行脚本，
+  // 不监听这个事件的话，从首页点进文章后评论会不显示
+  document.addEventListener('astro:page-load', loadGiscus);
+</script>

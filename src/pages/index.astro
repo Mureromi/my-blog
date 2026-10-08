@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 读取全部文章，过滤草稿，按日期倒序
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="我的博客">
+  <h1 class="mb-8 text-2xl font-bold">最新文章</h1>
+
+  <ul class="space-y-6">
+    {posts.map((post) => (
+      <li>
+        <a href={`/posts/${post.id}/`} class="group block">
+          <h2 class="text-lg font-semibold group-hover:underline">{post.data.title}</h2>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{post.data.description}</p>
+          <time datetime={post.data.pubDate.toISOString()} class="mt-1 block text-xs text-gray-400">
+            {post.data.pubDate.toLocaleDateString('zh-CN')}
+          </time>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

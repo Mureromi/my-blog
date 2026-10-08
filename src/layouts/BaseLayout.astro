@@ -1,0 +1,39 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '我的个人博客' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="我的博客" href={new URL('rss.xml', Astro.site)} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <header class="mx-auto max-w-2xl px-4 py-6">
+      <nav class="flex items-center gap-6 text-sm">
+        <a href="/" class="font-semibold">我的博客</a>
+        <a href="/" class="text-gray-600 dark:text-gray-300">首页</a>
+        <a href="/about" class="text-gray-600 dark:text-gray-300">关于</a>
+      </nav>
+    </header>
+
+    <main class="mx-auto max-w-2xl px-4 pb-16">
+      <slot />
+    </main>
+
+    <footer class="mx-auto max-w-2xl px-4 py-8 text-sm text-gray-400">
+      <p>© 2026 我的博客 · 用 Astro 搭建</p>
+    </footer>
+  </body>
+</html>
